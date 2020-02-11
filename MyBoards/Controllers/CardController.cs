@@ -48,6 +48,7 @@ namespace MyBoards.Controllers
         public IActionResult Create()
         {
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
+            ViewData["Tag"] = new SelectList(_context.Tags, "Id", "Name");
             return View();
         }
 

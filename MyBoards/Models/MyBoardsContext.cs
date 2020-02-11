@@ -64,8 +64,21 @@ namespace MyBoards.Models
                 .HasOne(x => x.Tag)
                 .WithMany(y => y.CardTags)
                 .HasForeignKey(y => y.CardId);
-        }
 
-        
+            var board = new Board { Id = 1, Name = "Principal" };            
+            modelBuilder.Entity<Board>().HasData(board);
+
+            var cardList = new CardList { Id = 1, Name = "Infinity Seguros", BoardId = board.Id };             
+            modelBuilder.Entity<CardList>().HasData(cardList);
+
+            var tag = new Tag { Id = 1, Name = "Issue", Color = "Amarillo" };
+            modelBuilder.Entity<Tag>().HasData(tag);
+
+            var state = new State { Id = 1, Title = "En desarrollo" };
+            modelBuilder.Entity<State>().HasData(state);
+
+            var responsible = new Responsible { Id = 1, Name = "Samuel" };
+            modelBuilder.Entity<Responsible>().HasData(responsible);
+        }        
     }
 }
