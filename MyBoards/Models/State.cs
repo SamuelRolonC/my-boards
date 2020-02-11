@@ -11,8 +11,9 @@ namespace MyBoards.Models
         [Required]
         public int Id { get; set; }
         [Required]
-        public int Title { get; set; }
-        [Required]
-        public string Color { get; set; }
+        [Display(Name = "Título")]
+        public string Title { get; set; }
+
+        public IList<CardState> CardStates { get; set; }
     }
 }

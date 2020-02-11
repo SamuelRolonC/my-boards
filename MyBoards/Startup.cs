@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,6 +39,9 @@ namespace MyBoards
             services.AddDbContext<MyBoardsContext>(
                 options => options.UseInMemoryDatabase(databaseName: "testDB")
             );
+
+            services.AddDbContext<MyBoardContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("MyBoardContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -11,7 +11,9 @@ namespace MyBoards.Models
         [Required]
         public int Id { get; set; }
         [Required]
+        [Display(Name = "Nombre")]
         public string Name { get; set; }
+        [Display(Name = "Descripción")]
         public string Description { get; set; }
 
         public List<CardList> CardLists { get; set; }
