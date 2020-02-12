@@ -37,7 +37,7 @@ namespace MyBoards
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<MyBoardsContext>(
-                options => options.UseInMemoryDatabase(databaseName: "testDB")
+                options => options.UseOracle(@"User Id=system;Password=Samuel2020;Data Source=localhost:1521/myboards;")
             );
         }
 
