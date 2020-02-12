@@ -41,6 +41,8 @@ namespace MyBoards.Controllers
                 return NotFound();
             }
 
+            ViewData["Tag"] = new SelectList(_context.Tags, "Id", "Name");
+
             return View(card);
         }
 
@@ -57,11 +59,27 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId")] Card card)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId,SelectedTags")] Card card)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(card);
+
+                foreach (var item in card.SelectedTags)
+                {
+                    int id;
+
+                    if (Int32.TryParse(item, out id))
+                    {
+                        CardTag cardTag = new CardTag()
+                        {
+                            TagId = id,
+                            CardId = card.Id
+                        };
+                        _context.Add(cardTag);
+                    }                    
+                }
+                
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -82,7 +100,14 @@ namespace MyBoards.Controllers
             {
                 return NotFound();
             }
-            ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name", card.CardListId);
+
+            int i = 0;
+            foreach (var item in card.CardTags)
+            {
+                card.SelectedTags[i] = item.TagId.ToString();
+            }
+            ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
+            ViewData["Tag"] = new MultiSelectList(_context.Tags, "Id", "Name", card.SelectedTags);
             return View(card);
         }
 

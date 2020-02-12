@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,5 +24,9 @@ namespace MyBoards.Models
         public IList<CardState> CardStates { get; set; }
         public IList<CardTag> CardTags { get; set; }
         public IList<CardResponsible> CardResponsibles { get; set; }
+
+        //Para cargar lista de tags en las vistas
+        [NotMapped]
+        public string[] SelectedTags { get; set; }
     }
 }
