@@ -50,12 +50,12 @@ namespace MyBoards.Models
             modelBuilder.Entity<CardResponsible>()
                 .HasOne(x => x.Card)
                 .WithMany(y => y.CardResponsibles)
-                .HasForeignKey(y => y.ResponsibleId);
+                .HasForeignKey(y => y.CardId);
 
             modelBuilder.Entity<CardResponsible>()
                 .HasOne(x => x.Responsible)
                 .WithMany(y => y.CardResponsibles)
-                .HasForeignKey(y => y.CardId);
+                .HasForeignKey(y => y.ResponsibleId);
 
             // CardState Many-To-Many relations
             modelBuilder.Entity<CardState>()
@@ -64,12 +64,12 @@ namespace MyBoards.Models
             modelBuilder.Entity<CardState>()
                 .HasOne(x => x.Card)
                 .WithMany(y => y.CardStates)
-                .HasForeignKey(y => y.StateId);
+                .HasForeignKey(y => y.CardId);
 
             modelBuilder.Entity<CardState>()
                 .HasOne(x => x.State)
                 .WithMany(y => y.CardStates)
-                .HasForeignKey(y => y.CardId);
+                .HasForeignKey(y => y.StateId);            
 
             // CardTag Many-To-Many relations
             modelBuilder.Entity<CardTag>()
@@ -78,12 +78,12 @@ namespace MyBoards.Models
             modelBuilder.Entity<CardTag>()
                 .HasOne(x => x.Card)
                 .WithMany(y => y.CardTags)
-                .HasForeignKey(y => y.TagId);
+                .HasForeignKey(y => y.CardId);
 
             modelBuilder.Entity<CardTag>()
                 .HasOne(x => x.Tag)
                 .WithMany(y => y.CardTags)
-                .HasForeignKey(y => y.CardId);
+                .HasForeignKey(y => y.TagId);            
         }        
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MyBoards.Models;
 
 namespace MyBoards.Controllers
@@ -12,10 +13,12 @@ namespace MyBoards.Controllers
     public class CardController : Controller
     {
         private readonly MyBoardsContext _context;
+        private readonly ILogger _logger;
 
-        public CardController(MyBoardsContext context)
+        public CardController(MyBoardsContext context, ILogger<CardController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Card
@@ -64,6 +67,9 @@ namespace MyBoards.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(card);
+                await _context.SaveChangesAsync();
+
+                CardTag cardTag;
 
                 foreach (var item in card.SelectedTags)
                 {
@@ -71,16 +77,17 @@ namespace MyBoards.Controllers
 
                     if (Int32.TryParse(item, out id))
                     {
-                        CardTag cardTag = new CardTag()
+                        cardTag = new CardTag()
                         {
                             TagId = id,
                             CardId = card.Id
                         };
+
                         _context.Add(cardTag);
+                        await _context.SaveChangesAsync();
                     }                    
-                }
-                
-                await _context.SaveChangesAsync();
+                }                
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name", card.CardListId);
@@ -95,19 +102,34 @@ namespace MyBoards.Controllers
                 return NotFound();
             }
 
-            var card = await _context.Cards.FindAsync(id);
+            var card = await _context.Cards
+                .Include(c => c.CardTags)
+                .SingleOrDefaultAsync(c => c.Id == id);
+                //.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
             }
 
-            int i = 0;
-            foreach (var item in card.CardTags)
+            if (card.CardTags != null)
             {
-                card.SelectedTags[i] = item.TagId.ToString();
+                card.SelectedTags = new string[card.CardTags.Count];
+                int i = 0;
+
+                foreach (var item in card.CardTags)
+                {
+                    card.SelectedTags[i] = item.TagId.ToString();
+                    i++;
+                }
             }
-            ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
+            else
+            {
+                card.SelectedTags = null;
+            }
+
             ViewData["Tag"] = new MultiSelectList(_context.Tags, "Id", "Name", card.SelectedTags);
+            ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
+
             return View(card);
         }
 
@@ -116,7 +138,7 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId")] Card card)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId,SelectedTags")] Card card)
         {
             if (id != card.Id)
             {
@@ -129,6 +151,32 @@ namespace MyBoards.Controllers
                 {
                     _context.Update(card);
                     await _context.SaveChangesAsync();
+
+                    CardTag cardTag;
+
+                    foreach (var item in card.SelectedTags)
+                    {
+                        int tgId;
+
+                        if (Int32.TryParse(item, out tgId))
+                        {
+                            cardTag = new CardTag()
+                            {
+                                TagId = tgId,
+                                CardId = card.Id
+                            };
+
+                            _context.Add(cardTag);
+                            try
+                            {
+                                await _context.SaveChangesAsync();
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogInformation("LOG: " + e.Message);
+                            }
+                        }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
