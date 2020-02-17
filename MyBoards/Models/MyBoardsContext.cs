@@ -55,21 +55,7 @@ namespace MyBoards.Models
             modelBuilder.Entity<CardResponsible>()
                 .HasOne(x => x.Responsible)
                 .WithMany(y => y.CardResponsibles)
-                .HasForeignKey(y => y.ResponsibleId);
-
-            // CardState Many-To-Many relations
-            modelBuilder.Entity<CardState>()
-                .HasKey(x => new { x.CardId, x.StateId });
-
-            modelBuilder.Entity<CardState>()
-                .HasOne(x => x.Card)
-                .WithMany(y => y.CardStates)
-                .HasForeignKey(y => y.CardId);
-
-            modelBuilder.Entity<CardState>()
-                .HasOne(x => x.State)
-                .WithMany(y => y.CardStates)
-                .HasForeignKey(y => y.StateId);            
+                .HasForeignKey(y => y.ResponsibleId);          
 
             // CardTag Many-To-Many relations
             modelBuilder.Entity<CardTag>()

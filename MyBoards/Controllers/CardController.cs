@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyBoards.Models;
+using MyBoards.Services;
 
 namespace MyBoards.Controllers
 {
@@ -42,9 +43,7 @@ namespace MyBoards.Controllers
             if (card == null)
             {
                 return NotFound();
-            }
-
-            ViewData["Tag"] = new SelectList(_context.Tags, "Id", "Name");
+            }            
 
             return View(card);
         }
@@ -53,7 +52,11 @@ namespace MyBoards.Controllers
         public IActionResult Create()
         {
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
-            ViewData["Tag"] = new SelectList(_context.Tags, "Id", "Name");
+            ViewData["StateId"] = new SelectList(_context.States, "Id", "Title");
+
+            ViewData["Tag"] = new MultiSelectList(_context.Tags, "Id", "Name");            
+            ViewData["Responsible"] = new MultiSelectList(_context.Responsibles, "Id", "Name");
+
             return View();
         }
 
@@ -62,35 +65,22 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId,SelectedTags")] Card card)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId,SelectedTags,SelectedStates,SelectedResponsibles")] Card card)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(card);
                 await _context.SaveChangesAsync();
 
-                CardTag cardTag;
-
-                foreach (var item in card.SelectedTags)
-                {
-                    int id;
-
-                    if (Int32.TryParse(item, out id))
-                    {
-                        cardTag = new CardTag()
-                        {
-                            TagId = id,
-                            CardId = card.Id
-                        };
-
-                        _context.Add(cardTag);
-                        await _context.SaveChangesAsync();
-                    }                    
-                }                
+                CreateCardTag.Execute(card, _context);                
+                CreateCardResponsible.Execute(card, _context);
 
                 return RedirectToAction(nameof(Index));
             }
+                        
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name", card.CardListId);
+            ViewData["StateId"] = new SelectList(_context.States, "Id", "Title", card.StateId);
+
             return View(card);
         }
 
@@ -104,31 +94,21 @@ namespace MyBoards.Controllers
 
             var card = await _context.Cards
                 .Include(c => c.CardTags)
+                .Include(c => c.CardResponsibles)
                 .SingleOrDefaultAsync(c => c.Id == id);
-                //.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
             }
 
-            if (card.CardTags != null)
-            {
-                card.SelectedTags = new string[card.CardTags.Count];
-                int i = 0;
+            card.LoadTags();
+            card.LoadResponsibles();
 
-                foreach (var item in card.CardTags)
-                {
-                    card.SelectedTags[i] = item.TagId.ToString();
-                    i++;
-                }
-            }
-            else
-            {
-                card.SelectedTags = null;
-            }
+            ViewData["Tag"] = new MultiSelectList(_context.Tags, "Id", "Name");
+            ViewData["Responsible"] = new MultiSelectList(_context.Responsibles, "Id", "Name");
 
-            ViewData["Tag"] = new MultiSelectList(_context.Tags, "Id", "Name", card.SelectedTags);
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name");
+            ViewData["StateId"] = new SelectList(_context.States, "Id", "Title");
 
             return View(card);
         }
@@ -138,7 +118,7 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId,SelectedTags")] Card card)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId,SelectedTags,CardTags")] Card card)
         {
             if (id != card.Id)
             {
@@ -152,31 +132,10 @@ namespace MyBoards.Controllers
                     _context.Update(card);
                     await _context.SaveChangesAsync();
 
-                    CardTag cardTag;
+                    EditCardTag.Execute(_context, id, card.SelectedTags);
+                    EditCardResponsible.Execute(_context, id, card.SelectedResponsibles);
 
-                    foreach (var item in card.SelectedTags)
-                    {
-                        int tgId;
-
-                        if (Int32.TryParse(item, out tgId))
-                        {
-                            cardTag = new CardTag()
-                            {
-                                TagId = tgId,
-                                CardId = card.Id
-                            };
-
-                            _context.Add(cardTag);
-                            try
-                            {
-                                await _context.SaveChangesAsync();
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogInformation("LOG: " + e.Message);
-                            }
-                        }
-                    }
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -191,7 +150,10 @@ namespace MyBoards.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CardListId"] = new SelectList(_context.CardLists, "Id", "Name", card.CardListId);
+            ViewData["StateId"] = new SelectList(_context.States, "Id", "Title", card.StateId);
+
             return View(card);
         }
 

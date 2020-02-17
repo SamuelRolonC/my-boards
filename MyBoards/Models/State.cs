@@ -14,6 +14,6 @@ namespace MyBoards.Models
         [Display(Name = "Título")]
         public string Title { get; set; }
 
-        public IList<CardState> CardStates { get; set; }
+        public List<Card> Cards { get; set; }
     }
 }
