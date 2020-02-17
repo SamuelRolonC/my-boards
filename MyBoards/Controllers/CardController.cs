@@ -39,6 +39,11 @@ namespace MyBoards.Controllers
 
             var card = await _context.Cards
                 .Include(c => c.CardList)
+                .Include(c => c.State)
+                .Include(c => c.CardTags)
+                    .ThenInclude(ct => ct.Tag)
+                .Include(c => c.CardResponsibles)
+                    .ThenInclude(cr => cr.Responsible)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (card == null)
             {
@@ -65,7 +70,7 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId,SelectedTags,SelectedStates,SelectedResponsibles")] Card card)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,CardListId,StateId,SelectedTags,SelectedResponsibles")] Card card)
         {
             if (ModelState.IsValid)
             {
@@ -118,7 +123,7 @@ namespace MyBoards.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId,SelectedTags,CardTags")] Card card)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CardListId,StateId,SelectedTags,SelectedResponsibles,CardTags")] Card card)
         {
             if (id != card.Id)
             {

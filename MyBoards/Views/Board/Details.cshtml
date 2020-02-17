@@ -1,13 +1,12 @@
 @model MyBoards.Models.Board
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Name;
 }
 
-<h2>Details</h2>
+<h2>Board</h2>
 
 <div>
-    <h4>Board</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -16,6 +15,7 @@
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
+        <br />
         <dt>
             @Html.DisplayNameFor(model => model.Description)
         </dt>

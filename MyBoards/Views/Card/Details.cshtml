@@ -4,7 +4,7 @@
     ViewData["Title"] = Model.Title;
 }
 
-<h2>Detalles de tarjeta</h2>
+<h2>Tarjeta</h2>
 
 <div>
     <hr />
@@ -29,6 +29,35 @@
         <dd>
             @Html.DisplayFor(model => model.CardList.Name)
         </dd>
+        <br />
+        <dt>
+            @Html.DisplayNameFor(model => model.State)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.State.Title)
+        </dd>
+        <br />
+        <dt>
+            @Html.DisplayNameFor(model => model.CardTags)
+        </dt>
+        @foreach (var cardTag in Model.CardTags)
+        {
+            <dd>
+                @cardTag.Tag.Name
+            </dd>
+            <br />
+        }
+        <br />
+        <dt>
+            @Html.DisplayNameFor(model => model.CardResponsibles)
+        </dt>
+        @foreach (var cardResponsible in Model.CardResponsibles)
+        {
+            <dd>
+                @cardResponsible.Responsible.Name
+            </dd>
+            <br />
+        }
     </dl>
 </div>
 <div>
