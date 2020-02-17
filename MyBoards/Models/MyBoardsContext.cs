@@ -16,7 +16,6 @@ namespace MyBoards.Models
         public DbSet<Responsible> Responsibles { get; set; }
         public DbSet<State> States { get; set; }
         public DbSet<CardTag> CardTags { get; set; }
-        public DbSet<CardState> CardStates { get; set; }
         public DbSet<CardResponsible> CardResponsible { get; set; }
 
         public MyBoardsContext (DbContextOptions<MyBoardsContext> options): base(options)

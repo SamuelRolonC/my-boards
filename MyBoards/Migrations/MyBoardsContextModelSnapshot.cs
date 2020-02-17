@@ -46,12 +46,16 @@ namespace MyBoards.Migrations
 
                     b.Property<string>("Description");
 
+                    b.Property<int>("StateId");
+
                     b.Property<string>("Title")
                         .IsRequired();
 
                     b.HasKey("Id");
 
                     b.HasIndex("CardListId");
+
+                    b.HasIndex("StateId");
 
                     b.ToTable("Cards");
                 });
@@ -88,19 +92,6 @@ namespace MyBoards.Migrations
                     b.HasIndex("ResponsibleId");
 
                     b.ToTable("CardResponsible");
-                });
-
-            modelBuilder.Entity("MyBoards.Models.CardState", b =>
-                {
-                    b.Property<int>("CardId");
-
-                    b.Property<int>("StateId");
-
-                    b.HasKey("CardId", "StateId");
-
-                    b.HasIndex("StateId");
-
-                    b.ToTable("CardStates");
                 });
 
             modelBuilder.Entity("MyBoards.Models.CardTag", b =>
@@ -176,6 +167,11 @@ namespace MyBoards.Migrations
                         .WithMany("Cards")
                         .HasForeignKey("CardListId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyBoards.Models.State", "State")
+                        .WithMany("Cards")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MyBoards.Models.CardList", b =>
@@ -196,19 +192,6 @@ namespace MyBoards.Migrations
                     b.HasOne("MyBoards.Models.Responsible", "Responsible")
                         .WithMany("CardResponsibles")
                         .HasForeignKey("ResponsibleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MyBoards.Models.CardState", b =>
-                {
-                    b.HasOne("MyBoards.Models.Card", "Card")
-                        .WithMany("CardStates")
-                        .HasForeignKey("CardId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("MyBoards.Models.State", "State")
-                        .WithMany("CardStates")
-                        .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

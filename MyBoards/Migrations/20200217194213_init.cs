@@ -3,7 +3,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 
 namespace MyBoards.Migrations
 {
-    public partial class First : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -89,7 +89,8 @@ namespace MyBoards.Migrations
                         .Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
                     Title = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: true),
-                    CardListId = table.Column<int>(nullable: false)
+                    CardListId = table.Column<int>(nullable: false),
+                    StateId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,6 +99,12 @@ namespace MyBoards.Migrations
                         name: "FK_Cards_CardLists_CardListId",
                         column: x => x.CardListId,
                         principalTable: "CardLists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Cards_States_StateId",
+                        column: x => x.StateId,
+                        principalTable: "States",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -122,30 +129,6 @@ namespace MyBoards.Migrations
                         name: "FK_CardResponsible_Responsibles_ResponsibleId",
                         column: x => x.ResponsibleId,
                         principalTable: "Responsibles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CardStates",
-                columns: table => new
-                {
-                    StateId = table.Column<int>(nullable: false),
-                    CardId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CardStates", x => new { x.CardId, x.StateId });
-                    table.ForeignKey(
-                        name: "FK_CardStates_Cards_CardId",
-                        column: x => x.CardId,
-                        principalTable: "Cards",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CardStates_States_StateId",
-                        column: x => x.StateId,
-                        principalTable: "States",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -215,8 +198,8 @@ namespace MyBoards.Migrations
                 column: "CardListId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CardStates_StateId",
-                table: "CardStates",
+                name: "IX_Cards_StateId",
+                table: "Cards",
                 column: "StateId");
 
             migrationBuilder.CreateIndex(
@@ -231,16 +214,10 @@ namespace MyBoards.Migrations
                 name: "CardResponsible");
 
             migrationBuilder.DropTable(
-                name: "CardStates");
-
-            migrationBuilder.DropTable(
                 name: "CardTags");
 
             migrationBuilder.DropTable(
                 name: "Responsibles");
-
-            migrationBuilder.DropTable(
-                name: "States");
 
             migrationBuilder.DropTable(
                 name: "Cards");
@@ -250,6 +227,9 @@ namespace MyBoards.Migrations
 
             migrationBuilder.DropTable(
                 name: "CardLists");
+
+            migrationBuilder.DropTable(
+                name: "States");
 
             migrationBuilder.DropTable(
                 name: "Boards");
